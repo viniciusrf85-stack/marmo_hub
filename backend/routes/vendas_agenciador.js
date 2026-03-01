@@ -146,6 +146,44 @@ router.get('/', auth, async (req, res) => {
 });
 
 /**
+ * GET /api/vendas-agenciador/agenciador/:agenciador_id/resumo
+ * Obter resumo de vendas de um agenciador
+ */
+router.get('/agenciador/:agenciador_id/resumo', auth, param('agenciador_id').isInt({ min: 1 }), async (req, res) => {
+  try {
+    const { agenciador_id } = req.params;
+
+    const [resumo] = await db.promise().query(
+      `SELECT 
+        COUNT(*) as total_vendas,
+        SUM(valor_total) as valor_total_vendas,
+        SUM(comissao_valor) as total_comissoes,
+        COUNT(CASE WHEN status = 'pendente' THEN 1 END) as vendas_pendentes,
+        COUNT(CASE WHEN status = 'confirmada' THEN 1 END) as vendas_confirmadas,
+        COUNT(CASE WHEN status = 'cancelada' THEN 1 END) as vendas_canceladas,
+        AVG(valor_total) as ticket_medio
+       FROM vendas_agenciador 
+       WHERE agenciador_id = ? AND ativo = TRUE`,
+      [agenciador_id]
+    );
+
+    logger.info('Resumo de vendas consultado', { agenciador_id, user_id: req.user?.id });
+
+    res.json({
+      success: true,
+      data: resumo[0]
+    });
+  } catch (error) {
+    logger.error('Erro ao obter resumo de vendas', { error: error.message, user_id: req.user?.id });
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao obter resumo de vendas',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+/**
  * GET /api/vendas-agenciador/:id
  * Obter detalhes de uma venda específica
  */
@@ -416,44 +454,6 @@ router.delete('/:id', auth, param('id').isInt({ min: 1 }), async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erro ao deletar venda',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
-
-/**
- * GET /api/vendas-agenciador/agenciador/:agenciador_id/resumo
- * Obter resumo de vendas de um agenciador
- */
-router.get('/agenciador/:agenciador_id/resumo', auth, param('agenciador_id').isInt({ min: 1 }), async (req, res) => {
-  try {
-    const { agenciador_id } = req.params;
-
-    const [resumo] = await db.promise().query(
-      `SELECT 
-        COUNT(*) as total_vendas,
-        SUM(valor_total) as valor_total_vendas,
-        SUM(comissao_valor) as total_comissoes,
-        COUNT(CASE WHEN status = 'pendente' THEN 1 END) as vendas_pendentes,
-        COUNT(CASE WHEN status = 'confirmada' THEN 1 END) as vendas_confirmadas,
-        COUNT(CASE WHEN status = 'cancelada' THEN 1 END) as vendas_canceladas,
-        AVG(valor_total) as ticket_medio
-       FROM vendas_agenciador 
-       WHERE agenciador_id = ? AND ativo = TRUE`,
-      [agenciador_id]
-    );
-
-    logger.info('Resumo de vendas consultado', { agenciador_id, user_id: req.user?.id });
-
-    res.json({
-      success: true,
-      data: resumo[0]
-    });
-  } catch (error) {
-    logger.error('Erro ao obter resumo de vendas', { error: error.message, user_id: req.user?.id });
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao obter resumo de vendas',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
