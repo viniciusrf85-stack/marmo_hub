@@ -34,7 +34,7 @@ const Navbar = () => {
             {!usuario ? (
               <>
                 <Link to="/login" className="nav-link">Entrar</Link>
-                <Link to="/registro" className="btn btn-primary btn-sm">
+                <Link to="/selecao-cadastro" className="btn btn-primary btn-sm">
                   Cadastrar
                 </Link>
               </>
