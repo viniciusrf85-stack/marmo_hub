@@ -322,12 +322,12 @@ export default function AgenciadorDashboard() {
               <table className="tabela">
                 <thead>
                   <tr>
-                    <th>Processo</th>
-                    <th>Parcela</th>
+                    <th>Venda</th>
+                    <th>Número</th>
                     <th>Valor</th>
                     <th>Vencimento</th>
                     <th>Status</th>
-                    <th>Forma</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -343,7 +343,9 @@ export default function AgenciadorDashboard() {
                             {parcela.status}
                           </span>
                         </td>
-                        <td>{parcela.forma_pagamento}</td>
+                        <td>
+                          <button className="btn-pequeno">Editar</button>
+                        </td>
                       </tr>
                     ))
                   ) : (
@@ -362,23 +364,17 @@ export default function AgenciadorDashboard() {
           <div className="tab-content">
             <div className="content-header">
               <h2>Meus Clientes</h2>
-              <button 
-                className="btn-novo"
-                onClick={() => navigate('/novo-cliente')}
-              >
-                + Novo Cliente
-              </button>
+              <button className="btn-novo">+ Novo Cliente</button>
             </div>
-
+            
             <div className="tabela-container">
               <table className="tabela">
                 <thead>
                   <tr>
                     <th>Nome</th>
-                    <th>Email</th>
-                    <th>Telefone</th>
+                    <th>Total de Vendas</th>
+                    <th>Valor Total</th>
                     <th>Prioridade</th>
-                    <th>Total Vendas</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -387,27 +383,21 @@ export default function AgenciadorDashboard() {
                     clientes.map(cliente => (
                       <tr key={cliente.id}>
                         <td>{cliente.nome_cliente}</td>
-                        <td>{cliente.email || '-'}</td>
-                        <td>{cliente.telefone || '-'}</td>
+                        <td>{cliente.total_vendas || 0}</td>
+                        <td>R$ {parseFloat(cliente.valor_total || 0).toFixed(2)}</td>
                         <td>
                           <span className={`prioridade ${cliente.prioridade}`}>
                             {cliente.prioridade}
                           </span>
                         </td>
-                        <td>R$ {parseFloat(cliente.total_vendas || 0).toFixed(2)}</td>
                         <td>
-                          <button 
-                            className="btn-pequeno"
-                            onClick={() => navigate(`/cliente/${cliente.id}`)}
-                          >
-                            Ver
-                          </button>
+                          <button className="btn-pequeno">Ver</button>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" className="sem-dados">Nenhum cliente encontrado</td>
+                      <td colSpan="5" className="sem-dados">Nenhum cliente encontrado</td>
                     </tr>
                   )}
                 </tbody>
@@ -419,6 +409,8 @@ export default function AgenciadorDashboard() {
         {/* Aba: Relatório */}
         {activeTab === 'relatorio' && (
           <div className="tab-content">
+            <h2>Relatório Mensal</h2>
+            
             <div className="filtros-relatorio">
               <select 
                 value={filtroMes}
@@ -430,7 +422,6 @@ export default function AgenciadorDashboard() {
                   </option>
                 ))}
               </select>
-
               <select 
                 value={filtroAno}
                 onChange={(e) => setFiltroAno(parseInt(e.target.value))}
@@ -443,77 +434,22 @@ export default function AgenciadorDashboard() {
 
             {relatorio && (
               <div className="relatorio-container">
-                <div className="secao-relatorio">
-                  <h3>Vendas do Período</h3>
-                  <div className="grid-relatorio">
-                    <div className="item-relatorio">
-                      <span>Total de Vendas</span>
-                      <strong>{relatorio.vendas?.total_vendas || 0}</strong>
-                    </div>
-                    <div className="item-relatorio">
-                      <span>Valor Total</span>
-                      <strong>R$ {parseFloat(relatorio.vendas?.valor_total_vendas || 0).toFixed(2)}</strong>
-                    </div>
-                    <div className="item-relatorio">
-                      <span>Ticket Médio</span>
-                      <strong>R$ {parseFloat(relatorio.vendas?.ticket_medio || 0).toFixed(2)}</strong>
-                    </div>
-                    <div className="item-relatorio">
-                      <span>Comissões</span>
-                      <strong>R$ {parseFloat(relatorio.vendas?.total_comissoes || 0).toFixed(2)}</strong>
-                    </div>
-                  </div>
+                <div className="relatorio-card">
+                  <h3>Total de Vendas</h3>
+                  <p className="valor">R$ {parseFloat(relatorio.total_vendas || 0).toFixed(2)}</p>
                 </div>
-
-                <div className="secao-relatorio">
-                  <h3>Parcelas</h3>
-                  <div className="grid-relatorio">
-                    <div className="item-relatorio">
-                      <span>Pagas</span>
-                      <strong>{relatorio.parcelas?.pagas || 0}</strong>
-                    </div>
-                    <div className="item-relatorio">
-                      <span>Pendentes</span>
-                      <strong>{relatorio.parcelas?.pendentes || 0}</strong>
-                    </div>
-                    <div className="item-relatorio">
-                      <span>Valor Recebido</span>
-                      <strong>R$ {parseFloat(relatorio.parcelas?.valor_pago || 0).toFixed(2)}</strong>
-                    </div>
-                    <div className="item-relatorio">
-                      <span>Valor Pendente</span>
-                      <strong>R$ {parseFloat(relatorio.parcelas?.valor_pendente || 0).toFixed(2)}</strong>
-                    </div>
-                  </div>
+                <div className="relatorio-card">
+                  <h3>Comissões</h3>
+                  <p className="valor">R$ {parseFloat(relatorio.total_comissoes || 0).toFixed(2)}</p>
                 </div>
-
-                {relatorio.top_clientes && relatorio.top_clientes.length > 0 && (
-                  <div className="secao-relatorio">
-                    <h3>Top 5 Clientes</h3>
-                    <div className="tabela-container">
-                      <table className="tabela">
-                        <thead>
-                          <tr>
-                            <th>Cliente</th>
-                            <th>Vendas</th>
-                            <th>Valor Total</th>
-                            <th>Ticket Médio</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {relatorio.top_clientes.map((cliente, idx) => (
-                            <tr key={idx}>
-                              <td>{cliente.cliente_nome}</td>
-                              <td>{cliente.numero_vendas}</td>
-                              <td>R$ {parseFloat(cliente.valor_total || 0).toFixed(2)}</td>
-                              <td>R$ {parseFloat(cliente.ticket_medio || 0).toFixed(2)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
+                <div className="relatorio-card">
+                  <h3>Parcelas Pagas</h3>
+                  <p className="valor">{relatorio.parcelas_pagas || 0}</p>
+                </div>
+                <div className="relatorio-card">
+                  <h3>Parcelas Pendentes</h3>
+                  <p className="valor">{relatorio.parcelas_pendentes || 0}</p>
+                </div>
               </div>
             )}
           </div>
