@@ -23,6 +23,13 @@ const contatosRoutes = require('./routes/contatos');
 const favoritosRoutes = require('./routes/favoritos');
 const dashboardRoutes = require('./routes/dashboard');
 
+// Rotas de agenciadores
+const vendas_agenciadorRoutes = require('./routes/vendas_agenciador');
+const parcelas_agenciadorRoutes = require('./routes/parcelas_agenciador');
+const comissoes_agenciadorRoutes = require('./routes/comissoes_agenciador');
+const clientes_agenciadorRoutes = require('./routes/clientes_agenciador');
+const relatorios_agenciadorRoutes = require('./routes/relatorios_agenciador');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -114,6 +121,13 @@ app.use('/api/contas', contasRoutes);
 app.use('/api/contatos', contatosRoutes);
 app.use('/api/favoritos', favoritosRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+
+// Rotas de agenciadores (vendas, parcelas, comissoes, clientes, relatorios)
+app.use('/api/vendas-agenciador', vendas_agenciadorRoutes);
+app.use('/api/parcelas-agenciador', parcelas_agenciadorRoutes);
+app.use('/api/comissoes-agenciador', comissoes_agenciadorRoutes);
+app.use('/api/clientes-agenciador', clientes_agenciadorRoutes);
+app.use('/api/relatorios-agenciador', relatorios_agenciadorRoutes);
 
 // ============================================
 // TRATAMENTO DE ERROS
