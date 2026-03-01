@@ -15,7 +15,7 @@ const pool = mysql.createPool({
   host: cleanEnvValue(process.env.DB_HOST) || 'localhost',
   port: parseInt(process.env.DB_PORT) || 3306,
   user: cleanEnvValue(process.env.DB_USER) || 'root',
-  password: cleanEnvValue(process.env.DB_PASSWORD) || 'Dominus#202!',
+  password: cleanEnvValue(process.env.DB_PASSWORD) || '',
   database: cleanEnvValue(process.env.DB_NAME) || 'olx_pedra',
   waitForConnections: true,
   connectionLimit: 10,
@@ -53,7 +53,8 @@ const testConnection = async () => {
       console.error('     - DB_USER (usuário do MySQL)');
       console.error('     - DB_PASSWORD (senha do MySQL)');
       console.error('');
-      console.error('     Execute: configurar-banco.bat para reconfigurar');
+      console.error('     Certifique-se de que as variáveis de ambiente estão configuradas corretamente.');
+      console.error('     Exemplo: DB_USER=root DB_PASSWORD=sua_senha node server.js');
     } else if (error.message.includes('ECONNREFUSED')) {
       console.error('');
       console.error('  ⚠ DICA: MySQL não está rodando!');

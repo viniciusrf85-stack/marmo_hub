@@ -4,12 +4,18 @@ const path = require('path');
 require('dotenv').config();
 
 const { testConnection } = require('./config/database');
+const { errorHandler, asyncHandler } = require('./utils/errorHandler');
+const { securityHeaders, sanitizeInput, validateContentType, customSecurityHeaders } = require('./middleware/security');
+const { generalLimiter, loginLimiter, registroLimiter } = require('./middleware/rateLimiter');
+const { cacheMiddleware, CACHE_TTL } = require('./middleware/cache');
+const compressionMiddleware = require('./middleware/compression');
+const { requestLogger } = require('./utils/logger');
+const { auditSecurityEvent } = require('./middleware/audit');
 
 // Importar rotas
 const authRoutes = require('./routes/auth');
 const usuariosRoutes = require('./routes/usuarios');
-const contasRoutes = require('./routes/contas'); // Nova rota (substitui empresas)
-// const empresasRoutes = require('./routes/empresas'); // DEPRECADO - usar /api/contas
+const contasRoutes = require('./routes/contas');
 const planosRoutes = require('./routes/planos');
 const materiaisRoutes = require('./routes/materiais');
 const tiposMateriaisRoutes = require('./routes/tipos-materiais');
@@ -20,81 +26,140 @@ const dashboardRoutes = require('./routes/dashboard');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middlewares
+// ============================================
+// MIDDLEWARES DE SEGURANCA E PERFORMANCE
+// ============================================
+
+// Helmet para headers de seguranca
+app.use(securityHeaders);
+
+// Headers de seguranca customizados
+app.use(customSecurityHeaders);
+
+// Compressao de resposta (gzip)
+app.use(compressionMiddleware);
+
+// CORS com configuracao segura
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos (uploads)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Validacao de Content-Type
+app.use(validateContentType);
 
-// Rota de teste
+// Parsers JSON e URL-encoded
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Sanitizacao de entrada
+app.use(sanitizeInput);
+
+// Logging de requisicoes
+app.use(requestLogger);
+
+// Auditoria de eventos de seguranca
+app.use(auditSecurityEvent);
+
+// Rate limiting geral
+app.use(generalLimiter);
+
+// Servir arquivos estaticos (uploads) com cache
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  maxAge: '1d',
+  etag: false
+}));
+
+// ============================================
+// ROTAS DE HEALTH CHECK
+// ============================================
+
 app.get('/', (req, res) => {
   res.json({ 
     message: 'OLX Pedra API - Sistema de Marketplace de Pedras Ornamentais',
     version: '1.0.0',
-    status: 'online'
-  });
-});
-
-// Rota de health check
-app.get('/health', async (req, res) => {
-  const dbConnected = await testConnection();
-  res.json({
-    status: 'ok',
-    database: dbConnected ? 'connected' : 'disconnected',
+    status: 'online',
     timestamp: new Date().toISOString()
   });
 });
 
-// Rotas da API
+app.get('/health', asyncHandler(async (req, res) => {
+  const dbConnected = await testConnection();
+  res.json({
+    status: 'ok',
+    database: dbConnected ? 'connected' : 'disconnected',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+}));
+
+// ============================================
+// ROTAS DA API
+// ============================================
+
+// Rotas de autenticacao com rate limiting especifico
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/registro-conta', registroLimiter);
+app.use('/api/auth/registro-usuario', registroLimiter);
 app.use('/api/auth', authRoutes);
+
+// Demais rotas com cache
+app.use('/api/planos', cacheMiddleware(CACHE_TTL.planos), planosRoutes);
+app.use('/api/tipos-materiais', cacheMiddleware(CACHE_TTL.tipos_materiais), tiposMateriaisRoutes);
+app.use('/api/materiais', cacheMiddleware(CACHE_TTL.materiais), materiaisRoutes);
 app.use('/api/usuarios', usuariosRoutes);
-app.use('/api/contas', contasRoutes); // Nova rota
-// app.use('/api/empresas', empresasRoutes); // DEPRECADO - usar /api/contas
-app.use('/api/planos', planosRoutes);
-app.use('/api/materiais', materiaisRoutes);
-app.use('/api/tipos-materiais', tiposMateriaisRoutes);
+app.use('/api/contas', contasRoutes);
 app.use('/api/contatos', contatosRoutes);
 app.use('/api/favoritos', favoritosRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// Tratamento de erro 404
-app.use((req, res) => {
-  res.status(404).json({ error: 'Rota não encontrada' });
-});
+// ============================================
+// TRATAMENTO DE ERROS
+// ============================================
 
-// Tratamento de erros global
-app.use((err, req, res, next) => {
-  console.error('Erro:', err);
-  res.status(err.status || 500).json({
-    error: err.message || 'Erro interno do servidor'
+app.use((req, res) => {
+  res.status(404).json({ 
+    success: false,
+    error: {
+      message: 'Rota nao encontrada',
+      code: 404,
+      path: req.path,
+      method: req.method
+    },
+    timestamp: new Date().toISOString()
   });
 });
 
-// Iniciar servidor
+app.use(errorHandler);
+
+// ============================================
+// INICIAR SERVIDOR
+// ============================================
+
 const startServer = async () => {
   try {
-    // Testar conexão com banco de dados
     const dbConnected = await testConnection();
     
     if (!dbConnected) {
-      console.warn('⚠ Servidor iniciará sem conexão com o banco de dados');
+      console.warn('Servidor iniciara sem conexao com o banco de dados');
     }
 
     app.listen(PORT, () => {
       console.log('');
-      console.log('═══════════════════════════════════════════════');
+      console.log('=================================================');
       console.log('  OLX PEDRA - Backend API');
-      console.log('═══════════════════════════════════════════════');
-      console.log(`  ✓ Servidor rodando na porta: ${PORT}`);
-      console.log(`  ✓ URL: http://localhost:${PORT}`);
-      console.log(`  ✓ Ambiente: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`  ✓ Database: ${dbConnected ? 'Conectado' : 'Desconectado'}`);
-      console.log('═══════════════════════════════════════════════');
+      console.log('=================================================');
+      console.log(`  OK Servidor rodando na porta: ${PORT}`);
+      console.log(`  OK URL: http://localhost:${PORT}`);
+      console.log(`  OK Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`  OK Database: ${dbConnected ? 'Conectado' : 'Desconectado'}`);
+      console.log(`  OK Seguranca: Helmet + Rate Limiting + Validacao`);
+      console.log(`  OK Cache: Habilitado para planos, tipos e materiais`);
+      console.log(`  OK Compressao: Gzip habilitado`);
+      console.log(`  OK Logging: Estruturado com Winston`);
+      console.log('=================================================');
       console.log('');
     });
   } catch (error) {
@@ -106,6 +171,3 @@ const startServer = async () => {
 startServer();
 
 module.exports = app;
-
-
-

@@ -45,5 +45,19 @@ Desktop.ini
 coverage/
 .nyc_output/
 
+# Testes
+.jest-cache/
+
+# Variáveis de ambiente de exemplo (não ignorar)
+!.env.example
+
+# Banco de dados local
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache
+.eslintcache
+
 
 

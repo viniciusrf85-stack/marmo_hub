@@ -19,13 +19,11 @@ const auth = async (req, res, next) => {
     
     req.user = decoded;
     
-    // Debug em desenvolvimento
+    // Debug apenas em desenvolvimento
     if (process.env.NODE_ENV === 'development') {
-      console.log('Auth middleware - Token decodificado:', {
+      console.log('[AUTH] Token decodificado:', {
         id: decoded.id,
-        email: decoded.email,
-        tipo_entidade: decoded.tipo_entidade,
-        tipo: decoded.tipo
+        tipo_entidade: decoded.tipo_entidade
       });
     }
     
@@ -77,32 +75,34 @@ const checkTipo = (...tipos) => {
       return res.status(401).json({ error: 'Usuário não autenticado' });
     }
 
-    // Debug: verificar o que está no req.user
-    console.log('checkTipo - req.user:', {
-      id: req.user.id,
-      tipo_entidade: req.user.tipo_entidade,
-      tipo: req.user.tipo,
-      email: req.user.email
-    });
-    console.log('checkTipo - tipos esperados:', tipos);
+    // Debug apenas em desenvolvimento
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[CHECKTYPE] Verificando tipos:', {
+        atual: req.user.tipo_entidade || req.user.tipo,
+        esperados: tipos
+      });
+    }
 
     // Verificar tipo_entidade ou tipo (compatibilidade)
     const tipoAtual = req.user.tipo_entidade || req.user.tipo;
     
     if (!tipoAtual) {
-      console.error('checkTipo: tipo_entidade não encontrado no token');
       return res.status(403).json({ 
-        error: 'Token inválido: tipo de entidade não encontrado',
-        debug: process.env.NODE_ENV === 'development' ? req.user : undefined
+        success: false,
+        error: {
+          message: 'Token inválido: tipo de entidade não encontrado',
+          code: 403
+        }
       });
     }
 
     if (!tipos.includes(tipoAtual)) {
-      console.error(`checkTipo: tipo ${tipoAtual} não está em [${tipos.join(', ')}]`);
       return res.status(403).json({ 
-        error: 'Acesso negado. Você não tem permissão para acessar este recurso.',
-        tipo_atual: tipoAtual,
-        tipos_permitidos: tipos
+        success: false,
+        error: {
+          message: 'Acesso negado. Você não tem permissão para acessar este recurso.',
+          code: 403
+        }
       });
     }
 
