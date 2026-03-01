@@ -20,6 +20,12 @@ import ContatosRecebidos from './pages/empresa/ContatosRecebidos'
 import MeusFavoritos from './pages/cliente/MeusFavoritos'
 import MeuPerfil from './pages/cliente/MeuPerfil'
 
+// Páginas de agenciadores
+import SelecaoCadastro from './pages/SelecaoCadastro'
+import RegistroAgenciador from './pages/RegistroAgenciador'
+import AgenciadorDashboard from './pages/AgenciadorDashboard'
+import FormVenda from './pages/FormVenda'
+
 // Páginas administrativas
 import DashboardAdmin from './pages/admin/Dashboard'
 import GerenciarEmpresas from './pages/admin/GerenciarEmpresas'
@@ -74,6 +80,10 @@ function App() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/material/:id" element={<MaterialDetalhes />} />
           <Route path="/empresas" element={<Empresas />} />
+
+          {/* Rotas de seleção e registro de agenciadores */}
+          <Route path="/selecao-cadastro" element={<SelecaoCadastro />} />
+          <Route path="/registro-agenciador" element={<RegistroAgenciador />} />
 
           {/* Rotas da empresa (conta) */}
           <Route
@@ -143,6 +153,32 @@ function App() {
             }
           />
 
+          {/* Rotas de agenciadores */}
+          <Route
+            path="/agenciador-dashboard"
+            element={
+              <ProtectedRoute requiredTipo="agenciador">
+                <AgenciadorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/nova-venda"
+            element={
+              <ProtectedRoute requiredTipo="agenciador">
+                <FormVenda />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/venda/:id"
+            element={
+              <ProtectedRoute requiredTipo="agenciador">
+                <FormVenda />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Rotas administrativas */}
           <Route
             path="/admin/dashboard"
@@ -194,6 +230,3 @@ function App() {
 }
 
 export default App
-
-
-
