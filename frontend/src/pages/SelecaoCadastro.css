@@ -1,0 +1,336 @@
+.selecao-cadastro {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container-selecao {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.header-selecao {
+  text-align: center;
+  color: white;
+  margin-bottom: 50px;
+}
+
+.header-selecao h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-selecao p {
+  font-size: 18px;
+  margin: 0 0 20px 0;
+  opacity: 0.95;
+}
+
+.badge-novo {
+  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Grid de Opções */
+.opcoes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+/* Card de Opção */
+.card-opcao {
+  background: white;
+  border-radius: 12px;
+  padding: 40px 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  border-left: 5px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Cores das opções */
+.card-opcao.laranja {
+  border-left-color: #FF6B35;
+}
+
+.card-opcao.azul {
+  border-left-color: #004E89;
+}
+
+.card-opcao.verde {
+  border-left-color: #27AE60;
+}
+
+/* Hover e Destaque */
+.card-opcao:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.card-opcao.destaque {
+  border: 2px solid #27AE60;
+  box-shadow: 0 8px 25px rgba(39, 174, 96, 0.2);
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+}
+
+.card-opcao.destaque:hover {
+  box-shadow: 0 12px 40px rgba(39, 174, 96, 0.3);
+}
+
+/* Badge Novo */
+.badge-novo-opcao {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #27AE60;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Ícone */
+.icone-opcao {
+  font-size: 48px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+/* Título */
+.card-opcao h2 {
+  margin: 0 0 10px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+.card-opcao.laranja h2 {
+  color: #FF6B35;
+}
+
+.card-opcao.azul h2 {
+  color: #004E89;
+}
+
+.card-opcao.verde h2 {
+  color: #27AE60;
+}
+
+/* Descrição */
+.card-opcao .descricao {
+  margin: 0 0 25px 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Features List */
+.features-list {
+  width: 100%;
+  margin-bottom: 30px;
+  flex-grow: 1;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.feature-dot {
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.card-opcao.laranja .feature-dot {
+  color: #FF6B35;
+}
+
+.card-opcao.azul .feature-dot {
+  color: #004E89;
+}
+
+.card-opcao.verde .feature-dot {
+  color: #27AE60;
+}
+
+/* Botão */
+.btn-selecionar {
+  width: 100%;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-opcao.laranja .btn-selecionar {
+  background-color: #FF6B35;
+  color: white;
+}
+
+.card-opcao.laranja .btn-selecionar:hover {
+  background-color: #E55A24;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.card-opcao.azul .btn-selecionar {
+  background-color: #004E89;
+  color: white;
+}
+
+.card-opcao.azul .btn-selecionar:hover {
+  background-color: #003d6b;
+  box-shadow: 0 4px 12px rgba(0, 78, 137, 0.3);
+}
+
+.card-opcao.verde .btn-selecionar {
+  background-color: #27AE60;
+  color: white;
+}
+
+.card-opcao.verde .btn-selecionar:hover {
+  background-color: #229954;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+/* Footer */
+.footer-selecao {
+  text-align: center;
+  color: white;
+  font-size: 14px;
+}
+
+.footer-selecao a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 2px solid white;
+  transition: all 0.3s ease;
+}
+
+.footer-selecao a:hover {
+  opacity: 0.8;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .header-selecao h1 {
+    font-size: 32px;
+  }
+
+  .header-selecao p {
+    font-size: 16px;
+  }
+
+  .opcoes-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .card-opcao {
+    padding: 30px 20px;
+  }
+
+  .icone-opcao {
+    font-size: 40px;
+    margin-bottom: 15px;
+  }
+
+  .card-opcao h2 {
+    font-size: 20px;
+  }
+
+  .card-opcao .descricao {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .btn-selecionar {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .selecao-cadastro {
+    padding: 10px;
+  }
+
+  .header-selecao {
+    margin-bottom: 30px;
+  }
+
+  .header-selecao h1 {
+    font-size: 24px;
+  }
+
+  .header-selecao p {
+    font-size: 14px;
+  }
+
+  .badge-novo {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  .card-opcao {
+    padding: 20px 15px;
+  }
+
+  .icone-opcao {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .card-opcao h2 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .card-opcao .descricao {
+    font-size: 12px;
+    margin-bottom: 15px;
+  }
+
+  .feature-item {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .btn-selecionar {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+}

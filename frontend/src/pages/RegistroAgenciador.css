@@ -1,0 +1,468 @@
+.registro-agenciador {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container-registro {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.header-registro {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 40px 30px;
+  position: relative;
+  text-align: center;
+}
+
+.btn-voltar-header {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-voltar-header:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.header-registro h1 {
+  margin: 0 0 10px 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.header-registro p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Mensagens */
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 15px;
+  margin: 20px;
+  border-radius: 6px;
+  border: 1px solid #c3e6cb;
+  text-align: center;
+  font-weight: 600;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  margin: 20px;
+  border-radius: 6px;
+  border: 1px solid #f5c6cb;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Indicador de Progresso */
+.progress-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.step-numero {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.step.ativo .step-numero {
+  background-color: #667eea;
+  color: white;
+}
+
+.step-label {
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.step.ativo .step-label {
+  color: #667eea;
+}
+
+.step-linha {
+  flex: 1;
+  height: 2px;
+  background-color: #e0e0e0;
+  margin: 0 15px;
+}
+
+/* Formulário */
+.form-registro {
+  padding: 30px;
+}
+
+.form-step h2 {
+  margin: 0 0 25px 0;
+  font-size: 20px;
+  color: #333;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 15px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input.erro {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.form-group input.erro:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.erro-texto {
+  display: block;
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 600;
+}
+
+.form-group small {
+  display: block;
+  color: #999;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+/* Confirmação */
+.confirmacao-secao {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border-left: 4px solid #667eea;
+}
+
+.confirmacao-secao h3 {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  color: #333;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.confirmacao-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.confirmacao-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.confirmacao-item .label {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.confirmacao-item .valor {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+.confirmacao-aviso {
+  background-color: #e7f3ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.confirmacao-aviso p {
+  margin: 0;
+  font-size: 13px;
+  color: #004085;
+  line-height: 1.5;
+}
+
+/* Botões de Ação */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-voltar,
+.btn-proximo {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-voltar {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btn-voltar:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-proximo {
+  background-color: #667eea;
+  color: white;
+  flex: 1;
+}
+
+.btn-proximo:hover:not(:disabled) {
+  background-color: #5568d3;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-proximo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.footer-registro {
+  text-align: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #e0e0e0;
+  font-size: 14px;
+  color: #666;
+}
+
+.footer-registro a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.footer-registro a:hover {
+  color: #5568d3;
+  text-decoration: underline;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .registro-agenciador {
+    padding: 20px;
+  }
+
+  .container-registro {
+    border-radius: 8px;
+  }
+
+  .header-registro {
+    padding: 30px 20px;
+  }
+
+  .header-registro h1 {
+    font-size: 22px;
+  }
+
+  .progress-indicator {
+    padding: 20px;
+    gap: 10px;
+  }
+
+  .step-numero {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+  }
+
+  .step-label {
+    font-size: 11px;
+  }
+
+  .step-linha {
+    margin: 0 8px;
+  }
+
+  .form-registro {
+    padding: 20px;
+  }
+
+  .form-step h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .confirmacao-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-voltar,
+  .btn-proximo {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-registro {
+    padding: 20px 15px;
+  }
+
+  .btn-voltar-header {
+    top: 10px;
+    left: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .header-registro h1 {
+    font-size: 18px;
+    margin-top: 20px;
+  }
+
+  .progress-indicator {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .step-linha {
+    width: 2px;
+    height: 20px;
+    margin: 0;
+  }
+
+  .form-registro {
+    padding: 15px;
+  }
+
+  .form-step h2 {
+    font-size: 16px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .confirmacao-secao {
+    padding: 15px;
+  }
+
+  .confirmacao-item .label {
+    font-size: 11px;
+  }
+
+  .confirmacao-item .valor {
+    font-size: 13px;
+  }
+
+  .form-actions {
+    gap: 10px;
+  }
+
+  .btn-voltar,
+  .btn-proximo {
+    padding: 10px 20px;
+    font-size: 12px;
+  }
+}
