@@ -14,6 +14,7 @@ const { auditSecurityEvent } = require('./middleware/audit');
 
 // Importar rotas
 const authRoutes = require('./routes/auth');
+const authAgenciadorRoutes = require('./routes/auth_agenciador');
 const usuariosRoutes = require('./routes/usuarios');
 const contasRoutes = require('./routes/contas');
 const planosRoutes = require('./routes/planos');
@@ -111,7 +112,9 @@ app.get('/health', asyncHandler(async (req, res) => {
 app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth/registro-conta', registroLimiter);
 app.use('/api/auth/registro-usuario', registroLimiter);
+app.use('/api/auth/registro-agenciador', registroLimiter);
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', authAgenciadorRoutes);
 
 // Demais rotas com cache
 app.use('/api/planos', cacheMiddleware(CACHE_TTL.planos), planosRoutes);
