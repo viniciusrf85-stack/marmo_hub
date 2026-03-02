@@ -4,7 +4,7 @@ const { body, validationResult } = require('express-validator');
 const db = require('../config/database');
 const { errorHandler } = require('../utils/errorHandler');
 const logger = require('../utils/logger');
-const { verificarAutenticacao } = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 
 // Validadores
 const validarEmpresa = [
@@ -18,9 +18,9 @@ const validarEmpresa = [
  * GET /api/agenciador-empresas
  * Listar todas as empresas do agenciador logado
  */
-router.get('/', verificarAutenticacao, async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
-    const agenciador_id = req.usuario.agenciador_id;
+    const agenciador_id = req.user.agenciador_id;
 
     const [empresas] = await db.promise().query(
       `SELECT id, agenciador_id, empresa_nome, cnpj, localizacao, comissao_percentual, ativo, data_cadastro
@@ -47,10 +47,10 @@ router.get('/', verificarAutenticacao, async (req, res) => {
  * GET /api/agenciador-empresas/:id
  * Obter detalhes de uma empresa específica
  */
-router.get('/:id', verificarAutenticacao, async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
     const { id } = req.params;
-    const agenciador_id = req.usuario.agenciador_id;
+    const agenciador_id = req.user.agenciador_id;
 
     const [empresas] = await db.promise().query(
       `SELECT id, agenciador_id, empresa_nome, cnpj, localizacao, comissao_percentual, ativo, data_cadastro
@@ -83,7 +83,7 @@ router.get('/:id', verificarAutenticacao, async (req, res) => {
  * POST /api/agenciador-empresas
  * Criar nova empresa comissionária
  */
-router.post('/', verificarAutenticacao, validarEmpresa, async (req, res) => {
+router.post('/', auth, validarEmpresa, async (req, res) => {
   try {
     // Validar erros
     const errors = validationResult(req);
@@ -96,7 +96,7 @@ router.post('/', verificarAutenticacao, validarEmpresa, async (req, res) => {
       });
     }
 
-    const agenciador_id = req.usuario.agenciador_id;
+    const agenciador_id = req.user.agenciador_id;
     const { empresa_nome, cnpj, localizacao, comissao_percentual } = req.body;
 
     // Verificar se CNPJ já existe para este agenciador
@@ -148,7 +148,7 @@ router.post('/', verificarAutenticacao, validarEmpresa, async (req, res) => {
  * PUT /api/agenciador-empresas/:id
  * Atualizar empresa comissionária
  */
-router.put('/:id', verificarAutenticacao, validarEmpresa, async (req, res) => {
+router.put('/:id', auth, validarEmpresa, async (req, res) => {
   try {
     // Validar erros
     const errors = validationResult(req);
@@ -162,7 +162,7 @@ router.put('/:id', verificarAutenticacao, validarEmpresa, async (req, res) => {
     }
 
     const { id } = req.params;
-    const agenciador_id = req.usuario.agenciador_id;
+    const agenciador_id = req.user.agenciador_id;
     const { empresa_nome, cnpj, localizacao, comissao_percentual } = req.body;
 
     // Verificar se empresa existe
@@ -225,10 +225,10 @@ router.put('/:id', verificarAutenticacao, validarEmpresa, async (req, res) => {
  * DELETE /api/agenciador-empresas/:id
  * Deletar empresa (soft delete)
  */
-router.delete('/:id', verificarAutenticacao, async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     const { id } = req.params;
-    const agenciador_id = req.usuario.agenciador_id;
+    const agenciador_id = req.user.agenciador_id;
 
     // Verificar se empresa existe
     const [empresaExistente] = await db.promise().query(
