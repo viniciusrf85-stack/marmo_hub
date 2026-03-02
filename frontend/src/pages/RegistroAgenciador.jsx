@@ -90,7 +90,7 @@ export default function RegistroAgenciador() {
     setError(null);
 
     try {
-      const response = await api.post('/auth/registro-agenciador', {
+      const response = await api.post('/api/auth/registro-agenciador', {
         nome: formData.nome,
         email: formData.email,
         telefone: formData.telefone,
