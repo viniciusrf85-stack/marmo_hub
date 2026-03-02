@@ -29,6 +29,7 @@ const parcelas_agenciadorRoutes = require('./routes/parcelas_agenciador');
 const comissoes_agenciadorRoutes = require('./routes/comissoes_agenciador');
 const clientes_agenciadorRoutes = require('./routes/clientes_agenciador');
 const relatorios_agenciadorRoutes = require('./routes/relatorios_agenciador');
+const agenciador_empresasRoutes = require('./routes/agenciador_empresas');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -128,6 +129,7 @@ app.use('/api/parcelas-agenciador', parcelas_agenciadorRoutes);
 app.use('/api/comissoes-agenciador', comissoes_agenciadorRoutes);
 app.use('/api/clientes-agenciador', clientes_agenciadorRoutes);
 app.use('/api/relatorios-agenciador', relatorios_agenciadorRoutes);
+app.use('/api/agenciador-empresas', agenciador_empresasRoutes);
 
 // ============================================
 // TRATAMENTO DE ERROS

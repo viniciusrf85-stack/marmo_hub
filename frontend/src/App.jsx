@@ -25,6 +25,7 @@ import SelecaoCadastro from './pages/SelecaoCadastro'
 import RegistroAgenciador from './pages/RegistroAgenciador'
 import AgenciadorDashboard from './pages/AgenciadorDashboard'
 import FormVenda from './pages/FormVenda'
+import GerenciarEmpresasAgenciador from './pages/GerenciarEmpresasAgenciador'
 
 // Páginas administrativas
 import DashboardAdmin from './pages/admin/Dashboard'
@@ -159,6 +160,14 @@ function App() {
             element={
               <ProtectedRoute requiredTipo="agenciador">
                 <AgenciadorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agenciador-empresas"
+            element={
+              <ProtectedRoute requiredTipo="agenciador">
+                <GerenciarEmpresasAgenciador />
               </ProtectedRoute>
             }
           />

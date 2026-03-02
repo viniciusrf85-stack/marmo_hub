@@ -97,6 +97,20 @@
   border-bottom-color: #667eea;
 }
 
+.tab.btn-empresas {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+  margin-left: auto;
+  border-radius: 0 8px 0 0;
+}
+
+.tab.btn-empresas:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
+  color: white;
+}
+
 /* Conteúdo das Abas */
 .tabs-content {
   background: white;

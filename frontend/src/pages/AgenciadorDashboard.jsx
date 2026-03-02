@@ -212,6 +212,12 @@ export default function AgenciadorDashboard() {
           >
             Relatório
           </button>
+          <button 
+            className="tab btn-empresas"
+            onClick={() => navigate('/agenciador-empresas')}
+          >
+            ⚙️ Minhas Empresas
+          </button>
         </div>
       </div>
 

@@ -13,20 +13,13 @@ const validarRegistroAgenciador = [
   body('email').isEmail().withMessage('Email inválido'),
   body('telefone').matches(/^\d{10,11}$/).withMessage('Telefone deve ter 10 ou 11 dígitos'),
   body('senha').isLength({ min: 8 }).withMessage('Senha deve ter no mínimo 8 caracteres')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('Senha deve conter maiúsculas, minúsculas e números'),
-  body('nome_empresa').trim().isLength({ min: 3, max: 255 }).withMessage('Nome da empresa deve ter entre 3 e 255 caracteres'),
-  body('cnpj_cpf').matches(/^\d{11,14}$/).withMessage('CNPJ/CPF inválido'),
-  body('tipo_pessoa').isIn(['pf', 'pj']).withMessage('Tipo de pessoa deve ser PF ou PJ'),
-  body('endereco').trim().isLength({ min: 5, max: 255 }).withMessage('Endereço inválido'),
-  body('cidade').trim().isLength({ min: 3, max: 100 }).withMessage('Cidade inválida'),
-  body('estado').trim().isLength({ min: 2, max: 2 }).withMessage('Estado deve ter 2 caracteres'),
-  body('cep').matches(/^\d{8}$/).withMessage('CEP deve ter 8 dígitos'),
-  body('comissao_percentual').isFloat({ min: 0, max: 100 }).withMessage('Comissão deve estar entre 0 e 100')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('Senha deve conter maiúsculas, minúsculas e números')
 ];
 
 /**
  * POST /api/auth/registro-agenciador
- * Registrar novo agenciador (usuário + conta + agenciador)
+ * Registrar novo agenciador (usuário + agenciador)
+ * Empresas comissionárias são adicionadas depois via /agenciador-empresas
  */
 router.post('/registro-agenciador', validarRegistroAgenciador, async (req, res) => {
   try {
@@ -46,18 +39,11 @@ router.post('/registro-agenciador', validarRegistroAgenciador, async (req, res) 
       email,
       telefone,
       senha,
-      nome_empresa,
-      cnpj_cpf,
-      tipo_pessoa,
-      endereco,
-      cidade,
-      estado,
-      cep,
       comissao_percentual = 5.00
     } = req.body;
 
     // Verificar se email já existe
-    const [usuarioExistente] = await db.query(
+    const [usuarioExistente] = await db.promise().query(
       'SELECT id FROM usuarios WHERE email = ?',
       [email]
     );
@@ -70,26 +56,11 @@ router.post('/registro-agenciador', validarRegistroAgenciador, async (req, res) 
       });
     }
 
-    // Verificar se CNPJ/CPF já existe
-    const [contaExistente] = await db.query(
-      'SELECT id FROM contas WHERE cnpj_cpf = ?',
-      [cnpj_cpf]
-    );
-
-    if (contaExistente.length > 0) {
-      logger.warn('Tentativa de registro com CNPJ/CPF duplicado', { cnpj_cpf });
-      return res.status(409).json({
-        success: false,
-        message: 'CNPJ/CPF já cadastrado'
-      });
-    }
-
     // Hash da senha
     const senhaHash = await bcrypt.hash(senha, 10);
 
     // Iniciar transação
-    const connection = await db.getConnection();
-    await connection.beginTransaction();
+    const connection = await db.promise();
 
     try {
       // 1. Criar usuário
@@ -101,16 +72,7 @@ router.post('/registro-agenciador', validarRegistroAgenciador, async (req, res) 
 
       const usuario_id = resultadoUsuario.insertId;
 
-      // 2. Criar conta
-      const [resultadoConta] = await connection.query(
-        `INSERT INTO contas (usuario_id, nome_empresa, cnpj_cpf, tipo_pessoa, telefone, email, endereco, cidade, estado, cep, ativo, data_cadastro)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-        [usuario_id, nome_empresa, cnpj_cpf, tipo_pessoa, telefone, email, endereco, cidade, estado, cep, true]
-      );
-
-      const conta_id = resultadoConta.insertId;
-
-      // 3. Criar agenciador
+      // 2. Criar agenciador
       const [resultadoAgenciador] = await connection.query(
         `INSERT INTO agenciadores (usuario_id, comissao_percentual, total_vendas_intermediadas, total_comissao, ativo, data_cadastro)
          VALUES (?, ?, ?, ?, ?, NOW())`,
@@ -119,19 +81,15 @@ router.post('/registro-agenciador', validarRegistroAgenciador, async (req, res) 
 
       const agenciador_id = resultadoAgenciador.insertId;
 
-      // Confirmar transação
-      await connection.commit();
-
       // Gerar token JWT
       const token = jwt.sign(
-        { id: usuario_id, email, tipo_usuario: 'agenciador' },
+        { id: usuario_id, email, tipo_usuario: 'agenciador', agenciador_id },
         process.env.JWT_SECRET || 'seu_secret_key',
         { expiresIn: '24h' }
       );
 
       logger.info('Agenciador registrado com sucesso', {
         usuario_id,
-        conta_id,
         agenciador_id,
         email
       });
@@ -141,12 +99,10 @@ router.post('/registro-agenciador', validarRegistroAgenciador, async (req, res) 
         message: 'Agenciador registrado com sucesso',
         data: {
           usuario_id,
-          conta_id,
           agenciador_id,
           nome,
           email,
-          nome_empresa,
-          tipo_pessoa,
+          telefone,
           comissao_percentual,
           tipo_usuario: 'agenciador',
           token
@@ -154,10 +110,7 @@ router.post('/registro-agenciador', validarRegistroAgenciador, async (req, res) 
       });
 
     } catch (erro) {
-      await connection.rollback();
       throw erro;
-    } finally {
-      connection.release();
     }
 
   } catch (erro) {
@@ -187,7 +140,7 @@ router.post('/login-agenciador', [
     const { email, senha } = req.body;
 
     // Buscar usuário agenciador
-    const [usuarios] = await db.query(
+    const [usuarios] = await db.promise().query(
       `SELECT u.id, u.nome, u.email, u.senha, u.tipo_usuario, a.id as agenciador_id, a.comissao_percentual
        FROM usuarios u
        LEFT JOIN agenciadores a ON u.id = a.usuario_id
@@ -217,7 +170,7 @@ router.post('/login-agenciador', [
 
     // Gerar token
     const token = jwt.sign(
-      { id: usuario.id, email: usuario.email, tipo_usuario: 'agenciador' },
+      { id: usuario.id, email: usuario.email, tipo_usuario: 'agenciador', agenciador_id: usuario.agenciador_id },
       process.env.JWT_SECRET || 'seu_secret_key',
       { expiresIn: '24h' }
     );
@@ -231,6 +184,7 @@ router.post('/login-agenciador', [
         id: usuario.id,
         nome: usuario.nome,
         email: usuario.email,
+        telefone: usuario.telefone,
         tipo_usuario: usuario.tipo_usuario,
         agenciador_id: usuario.agenciador_id,
         comissao_percentual: usuario.comissao_percentual,
@@ -261,13 +215,11 @@ router.get('/agenciador/perfil', async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'seu_secret_key');
 
     // Buscar dados do agenciador
-    const [agenciadores] = await db.query(
+    const [agenciadores] = await db.promise().query(
       `SELECT a.id, a.usuario_id, a.comissao_percentual, a.total_vendas_intermediadas, a.total_comissao,
-              u.nome, u.email, u.telefone,
-              c.nome_empresa, c.cnpj_cpf, c.tipo_pessoa, c.endereco, c.cidade, c.estado, c.cep
+              u.nome, u.email, u.telefone
        FROM agenciadores a
        JOIN usuarios u ON a.usuario_id = u.id
-       LEFT JOIN contas c ON u.id = c.usuario_id
        WHERE a.usuario_id = ?`,
       [decoded.id]
     );
@@ -289,13 +241,6 @@ router.get('/agenciador/perfil', async (req, res) => {
         nome: agenciador.nome,
         email: agenciador.email,
         telefone: agenciador.telefone,
-        nome_empresa: agenciador.nome_empresa,
-        cnpj_cpf: agenciador.cnpj_cpf,
-        tipo_pessoa: agenciador.tipo_pessoa,
-        endereco: agenciador.endereco,
-        cidade: agenciador.cidade,
-        estado: agenciador.estado,
-        cep: agenciador.cep,
         comissao_percentual: agenciador.comissao_percentual,
         total_vendas_intermediadas: agenciador.total_vendas_intermediadas,
         total_comissao: agenciador.total_comissao
